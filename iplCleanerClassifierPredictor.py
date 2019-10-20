@@ -45,7 +45,7 @@ for row in df1.itertuples():
         prev_innings = 1
         #curr_innings = row.inning
     elif curr_innings != prev_innings and prev_innings == 1:                # Innings 1 ended, 2nd innings started. Reset values
-        print("Target set is: ",teamscore)
+        #print("Target set is: ",teamscore)
         target = teamscore+1
         df2.loc[df2['id']==curr_matchid,['target']] = teamscore+1
         teamscore = 0
@@ -99,6 +99,8 @@ df2['team2_90_ach'] = df2['team2_score'] - df2['team2_90_rn']
 # If team 2 wins (chasing team wins), we input 1, else we put 0. This includes result post superover
 df2['team2_win'] = 1
 df2.loc[df2['winner']==df2['team1'],['team2_win']]=0
+
+df2.to_csv(r'PreparedData.csv')
 
 # Data Cleaning and Preparing Ends
 ##############################################################################################
