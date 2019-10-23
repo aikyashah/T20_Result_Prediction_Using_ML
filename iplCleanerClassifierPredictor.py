@@ -13,7 +13,7 @@ import pandas as pd
 df1 = pd.read_csv('deliveries.csv')             # The file where we will calculate scores ball by ball
 df2 = pd.read_csv('workingData.csv')            # This is the file where we will input our calculated values
 
-abandoned = [301,546,571,11340] # Rain abandoned matches with no result
+abandoned = [301,452, 546,566, 571,11340] # Rain abandoned matches with no result or shortened matches with less tha 11 overs
 #Remove abandoned matches from the dataframe
 for a_id in abandoned:
     indexIds1 = df1[df1['match_id'] == a_id].index
@@ -100,14 +100,64 @@ df2['team2_90_ach'] = df2['team2_score'] - df2['team2_90_rn']
 df2['team2_win'] = 1
 df2.loc[df2['winner']==df2['team1'],['team2_win']]=0
 
+dlmethodIds = df2[df2['dl_applied'] == 1].index
+df2.drop(dlmethodIds, inplace=True)
+
 df2.to_csv(r'PreparedData.csv')
 
 # Data Cleaning and Preparing Ends
 ##############################################################################################
+#Column Headers:
+""" 
+# 'id', 'season', 'team1', 'team2', 'result', 'target', 'team2_score',     - 7
+       'balls_30', 'team2_30_rn', 'team2_30_wk', 'team2_30_ach', 'balls_60',  - 12
+       'team2_60_rn', 'team2_60_wk', 'team2_60_ach', 'balls_90', 'team2_90_rn',  -17
+       'team2_90_wk', 'team2_90_ach', 'dl_applied', 'winner', 'win_by_runs',     - 22
+       'win_by_wickets', 'team2_win'
 
+"""
 
 # Start of Using Models
 
-    
-    
+# Prep
+df = pd.read_csv('PreparedData.csv')
+X = df.iloc[:,[6,8,9,10,12,13,14,16,17,18]].values
+X_30 = df.iloc[:,[6,8,9,10]].values
+X_60 = df.iloc[:,[6,12,13,14]].values
+X_90 = df.iloc[:,[6,16,17,18]].values
+y = df.iloc[:,24].values
+
+# Splitting the dataset into the Training set and Test set
+from sklearn.model_selection import train_test_split
+X_30_train, X_30_test, y_30_train, y_30_test = train_test_split(X_30, y, test_size = 0.25)
+X_60_train, X_60_test, y_60_train, y_60_test = train_test_split(X_60, y, test_size = 0.25)
+X_90_train, X_90_test, y_90_train, y_90_test = train_test_split(X_30, y, test_size = 0.25)
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25)
+
+# Random Forest
+from sklearn.ensemble import RandomForestClassifier
+rf_classifier = RandomForestClassifier(n_estimators=20, criterion='entropy')
+rf_classifier.fit(X_30_train,y_30_train)
+
+rf_classifier_60 = RandomForestClassifier(n_estimators=20, criterion='entropy')
+rf_classifier_60.fit(X_60_train,y_60_train)
+
+rf_classifier_90 = RandomForestClassifier(n_estimators=20, criterion='entropy')
+rf_classifier_90.fit(X_90_train,y_90_train)
+
+rf_classifier_all = RandomForestClassifier(n_estimators=20, criterion='entropy')
+rf_classifier_all.fit(X_train,y_train)
+
+# Predicting the Test set results
+rf_y_30_pred = rf_classifier.predict(X_30_test)
+rf_y_60_pred = rf_classifier_60.predict(X_60_test)
+rf_y_90_pred = rf_classifier_90.predict(X_90_test)
+rf_y_pred = rf_classifier_all.predict(X_test)
+
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+rf_cm_30 = confusion_matrix(y_30_test, rf_y_30_pred)
+rf_cm_60 = confusion_matrix(y_60_test, rf_y_60_pred)
+rf_cm_90 = confusion_matrix(y_90_test, rf_y_90_pred)
+rf_cm = confusion_matrix(y_test, rf_y_pred)
     
