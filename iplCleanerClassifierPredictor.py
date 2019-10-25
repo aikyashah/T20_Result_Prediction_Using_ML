@@ -53,7 +53,7 @@ def preprocessFile():
             wickets = 0
             prev_innings = 2
 
-        if prev_innings==1 and curr_innings == 1:
+        if prev_innings==1 and curr_innings == 1:                              #  Inside innings 1
             teamscore += row.total_runs
             if row.player_dismissed==0:
                 wickets = wickets + 0
@@ -104,7 +104,7 @@ def preprocessFile():
     dlmethodIds = df2[df2['dl_applied'] == 1].index
     df2.drop(dlmethodIds, inplace=True)
 
-    df2.to_csv(r'PreparedData.csv')
+    df2.to_csv(r'PreparedData.csv')                                             # Store Processed Data in a CSV File
 
 # Data Cleaning and Preparing Ends (End of PreprocessFile function)
 ##############################################################################################
@@ -130,12 +130,22 @@ X_60 = df.iloc[:,[6,12,13,14]].values
 X_90 = df.iloc[:,[6,16,17,18]].values
 y = df.iloc[:,24].values
 
-# Splitting the dataset into the Training set and Test set
+# Splitting the dataset into the Training set and Test set  (75%  -  25% split)
 from sklearn.model_selection import train_test_split
 X_30_train, X_30_test, y_30_train, y_30_test = train_test_split(X_30, y, test_size = 0.25)
 X_60_train, X_60_test, y_60_train, y_60_test = train_test_split(X_60, y, test_size = 0.25)
 X_90_train, X_90_test, y_90_train, y_90_test = train_test_split(X_90, y, test_size = 0.25)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25)
+
+# 10  - cross - validation to check variance
+def cross_validation(classifier, X_training_set, y_training_set, stage, model):
+    from sklearn.model_selection import cross_val_score
+    accuracies = cross_val_score(estimator=classifier, X=X_training_set, y=y_training_set, cv=10)
+    print("The accuracy of Stage", str(stage) +" for ", model +" is: ",str(accuracies.mean()))
+    print("The variance among these is : ",str(accuracies.std()))
+    print("--------------------------------------------------------------------------\n")
+
+
 
 # 1.  Random Forest
 
@@ -171,43 +181,7 @@ def random_forest():
     cross_validation(rf_classifier_60, X_60_train, y_60_train, 2, "Random Forest")
     cross_validation(rf_classifier_90, X_90_train, y_90_train, 3, "Random Forest")
     cross_validation(rf_classifier_all, X_train, y_train, 3, "Random Forest")
-"""
-    from sklearn.model_selection import GridSearchCV
-    n_estimators = [110, 120, 130, 140]
-    max_depth = [6,7]
-    min_samples_split = [2,3,4]
 
-    hyperF = dict(n_estimators=n_estimators, max_depth=max_depth, min_samples_split=min_samples_split)
-
-    grid_30 = GridSearchCV(rf_classifier_30, hyperF, cv=5, n_jobs=-1)
-    grid_30.fit(X_30_train,y_30_train)
-    print("\n The best accuracy is given by: ", str(grid_30.best_score_))
-    print("\n The best parameters are: ",grid_30.best_params_)
-
-    grid_60 = GridSearchCV(rf_classifier_60, hyperF, cv=5, n_jobs=-1)
-    grid_60.fit(X_60_train, y_60_train)
-    print("\n The best accuracy is given by: ", str(grid_60.best_score_))
-    print("\n The best parameters are: ", grid_60.best_params_)
-
-    grid_90 = GridSearchCV(rf_classifier_90, hyperF, cv=5, n_jobs=-1)
-    grid_90.fit(X_90_train, y_90_train)
-    print("\n The best accuracy is given by: ", str(grid_90.best_score_))
-    print("\n The best parameters are: ", grid_90.best_params_)
-
-    grid_all = GridSearchCV(rf_classifier_all, hyperF, cv=5, n_jobs=-1)
-    grid_all.fit(X_train, y_train)
-    print("\n The best accuracy is given by: ", str(grid_all.best_score_))
-    print("\n The best parameters are: ", grid_all.best_params_)
-"""
-
-
-    # 10- cross - validation to check variance
-def cross_validation(classifier, X_training_set, y_training_set, stage, model):
-    from sklearn.model_selection import cross_val_score
-    accuracies = cross_val_score(estimator=classifier, X=X_training_set, y=y_training_set, cv=10)
-    print("The accuracy of Stage", str(stage) +" for ", model +" is: ",str(accuracies.mean()))
-    print("The variance among these is : ",str(accuracies.std()))
-    print("--------------------------------------------------------------------------\n")
 
 
 
@@ -216,22 +190,27 @@ from sklearn.preprocessing import StandardScaler
 sc_X = StandardScaler()
 X_train = sc_X.fit_transform(X_train)
 X_test = sc_X.transform(X_test)
-sc_y = StandardScaler()
-y_train = sc_y.fit_transform(y_train)
+#sc_y = StandardScaler()
+#y_train = sc_y.fit_transform(y_train)
 
 X_30_train = sc_X.fit_transform(X_30_train)
 X_30_test = sc_X.transform(X_30_test)
-y_30_train = sc_y.fit_transform(y_30_train)
+#y_30_train = sc_y.fit_transform(y_30_train)
 
 X_60_train = sc_X.fit_transform(X_60_train)
 X_60_test = sc_X.transform(X_60_test)
-y_60_train = sc_y.fit_transform(y_60_train)
+#y_60_train = sc_y.fit_transform(y_60_train)
 
 X_90_train = sc_X.fit_transform(X_90_train)
 X_90_test = sc_X.transform(X_90_test)
-y_90_train = sc_y.fit_transform(y_90_train)
+#y_90_train = sc_y.fit_transform(y_90_train)
 
-######################################### 3. Naive Bayes Prediction
+
+
+
+# 2. Naive Bayes Prediction
+
+
 def naive_Bayes():
     from sklearn.naive_bayes import GaussianNB
 
@@ -266,20 +245,24 @@ def naive_Bayes():
     cross_validation(nb_classifier_90, X_90_train, y_90_train, 3, "Naive Bayes")
     cross_validation(nb_classifier_all, X_train, y_train, 3, "Naive Bayes")
 
-# 4. SVM
+
+
+# 3. SVM
+
+
 def svm():
     from sklearn.svm import SVC
 
-    svc_classifier_30 = SVC(kernel='rbf')
+    svc_classifier_30 = SVC(kernel='linear', C=1)
     svc_classifier_30.fit(X_30_train, y_30_train)
 
-    svc_classifier_60 = SVC(kernel='rbf')
+    svc_classifier_60 = SVC(kernel='linear', C=1)
     svc_classifier_60.fit(X_60_train, y_60_train)
 
-    svc_classifier_90 = SVC(kernel='rbf')
+    svc_classifier_90 = SVC(kernel='rbf', C=2, gamma=0.001)
     svc_classifier_90.fit(X_90_train, y_90_train)
 
-    svc_classifier_all = SVC(kernel='rbf')
+    svc_classifier_all = SVC(kernel='linear', C=1)
     svc_classifier_all.fit(X_train, y_train)
 
     # Predicting the Test set results with Naive Bayes
@@ -301,13 +284,98 @@ def svm():
     cross_validation(svc_classifier_90, X_90_train, y_90_train, 3, "SVM")
     cross_validation(svc_classifier_all, X_train, y_train, 3, "SVM")
 
-# Grid Search to get the best value for Random Forest:
+    from sklearn.model_selection import GridSearchCV
+    hyperF = [{'C': [1, 2, 3, 5], 'kernel':['rbf'], 'gamma': [0.001,0.0001, 0.005]}]
 
+    grid_30 = GridSearchCV(estimator=svc_classifier_30, param_grid=hyperF, scoring='accuracy', cv=10, n_jobs=-1)
+    grid_30.fit(X_30_train, y_30_train)
+    print("\n The best accuracy is given by: ", str(grid_30.best_score_))
+    print("\n The best parameters are: ", grid_30.best_params_)
+
+    grid_60 = GridSearchCV(estimator=svc_classifier_60, param_grid=hyperF, scoring='accuracy', cv=10, n_jobs=-1)
+    grid_60.fit(X_60_train, y_60_train)
+    print("\n The best accuracy is given by: ", str(grid_60.best_score_))
+    print("\n The best parameters are: ", grid_60.best_params_)
+
+    grid_90 = GridSearchCV(estimator=svc_classifier_90, param_grid=hyperF, scoring='accuracy', cv=10, n_jobs=-1)
+    grid_90.fit(X_90_train, y_90_train)
+    print("\n The best accuracy is given by: ", str(grid_90.best_score_))
+    print("\n The best parameters are: ", grid_90.best_params_)
+
+    grid_all = GridSearchCV(estimator=svc_classifier_all, param_grid=hyperF, scoring='accuracy', cv=10, n_jobs=-1)
+    grid_all.fit(X_train, y_train)
+    print("\n The best accuracy is given by: ", str(grid_all.best_score_))
+    print("\n The best parameters are: ", grid_all.best_params_)
+
+
+
+# 4. Logistic Regression
+
+
+def logisticRegressionClassifier():
+    from sklearn.linear_model import LogisticRegression
+
+    log_classifier_30 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l2')
+    log_classifier_30.fit(X_30_train, y_train)
+
+    log_classifier_60 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l2')
+    log_classifier_60.fit(X_60_train, y_train)
+
+    log_classifier_90 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l2')
+    log_classifier_90.fit(X_90_train, y_train)
+
+    log_classifier_all = LogisticRegression(solver='liblinear', max_iter=100, penalty='l2')
+    log_classifier_all.fit(X_train, y_train)
+
+    # Predicting the Test set results with Naive Bayes
+    log_y_30_pred = log_classifier_30.predict(X_30_test)
+    log_y_60_pred = log_classifier_60.predict(X_60_test)
+    log_y_90_pred = log_classifier_90.predict(X_90_test)
+    log_y_pred = log_classifier_all.predict(X_test)
+
+    # Making the Confusion Matrix
+    from sklearn.metrics import confusion_matrix
+    log_cm_30 = confusion_matrix(y_30_test, log_y_30_pred)
+    log_cm_60 = confusion_matrix(y_60_test, log_y_60_pred)
+    log_cm_90 = confusion_matrix(y_90_test, log_y_90_pred)
+    log_cm = confusion_matrix(y_test, log_y_pred)
+
+    # 10 cross-validation to determine variance
+    cross_validation(log_classifier_30,X_30_train,y_30_train,1, "Logisic Regression")
+    cross_validation(log_classifier_60, X_60_train, y_60_train, 2, "Logisic Regression")
+    cross_validation(log_classifier_90, X_90_train, y_90_train, 3, "Logisic Regression")
+    cross_validation(log_classifier_all, X_train, y_train, 3, "Logisic Regression")
+"""
+    from sklearn.model_selection import GridSearchCV
+    hyperF = [{'C': [0.1, 0.001, 1, 10], 'solver':['liblinear'], 'penalty': ['l1', 'l2'], 'max_iter':[100, 500, 1000, 2000]}]
+
+    grid_30 = GridSearchCV(estimator=log_classifier_30, param_grid=hyperF, scoring='accuracy', cv=10, n_jobs=-1)
+    grid_30.fit(X_30_train, y_30_train)
+    print("\n The best accuracy is given by: ", str(grid_30.best_score_))
+    print("\n The best parameters are: ", grid_30.best_params_)
+
+    grid_60 = GridSearchCV(estimator=log_classifier_60, param_grid=hyperF, scoring='accuracy', cv=10, n_jobs=-1)
+    grid_60.fit(X_60_train, y_60_train)
+    print("\n The best accuracy is given by: ", str(grid_60.best_score_))
+    print("\n The best parameters are: ", grid_60.best_params_)
+
+    grid_90 = GridSearchCV(estimator=log_classifier_90, param_grid=hyperF, scoring='accuracy', cv=10, n_jobs=-1)
+    grid_90.fit(X_90_train, y_90_train)
+    print("\n The best accuracy is given by: ", str(grid_90.best_score_))
+    print("\n The best parameters are: ", grid_90.best_params_)
+
+    grid_all = GridSearchCV(estimator=log_classifier_all, param_grid=hyperF, scoring='accuracy', cv=10, n_jobs=-1)
+    grid_all.fit(X_train, y_train)
+    print("\n The best accuracy is given by: ", str(grid_all.best_score_))
+    print("\n The best parameters are: ", grid_all.best_params_)
+"""
 
 def main():
+    #preprocessFile()
     random_forest()
     #naive_Bayes()
     #svm()
+    #logisticRegressionClassifier()
 
 if __name__ == "__main__":
     main()
