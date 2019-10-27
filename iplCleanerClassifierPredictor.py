@@ -110,12 +110,12 @@ def preprocessFile():
 ##############################################################################################
 #Column Headers For my reference:
 """ 
-# 'id', 'season', 'team1', 'team2', 'result', 'target', 'team2_score',     - 7
-       'balls_30', 'team2_30_rn', 'team2_30_wk', 'team2_30_ach', 'balls_60',  - 12
-       'team2_60_rn', 'team2_60_wk', 'team2_60_ach', 'balls_90', 'team2_90_rn',  -17
-       'team2_90_wk', 'team2_90_ach', 'dl_applied', 'winner', 'win_by_runs',     - 22
-       'win_by_wickets', 'team2_win'
-
+# 'id', 'season', 'team1', 'team2', 'result', 'target', 'team2_score',     - 6
+       'balls_30', 'team2_30_rn', 'team2_30_wk', 'team2_30_ach', 'balls_60',  - 11
+       'team2_60_rn', 'team2_60_wk', 'team2_60_ach', 'balls_90', 'team2_90_rn',  -16
+       'team2_90_wk', 'team2_90_ach', 'dl_applied', 'winner', 'win_by_runs',     - 21
+       'win_by_wickets', 'team2_win', dls_5, dls_10, dls_15
+# ,Unnamed: 0,id,season,team1,team2,result,target,team2_score,balls_30,team2_30_rn,team2_30_wk,team2_30_ach,balls_60,team2_60_rn,team2_60_wk,team2_60_ach,balls_90,team2_90_rn,team2_90_wk,team2_90_ach,dl_applied,winner,win_by_runs,win_by_wickets,team2_win,dls_5,dls_10,dls_15
 """
 
 # Start of Using Models
@@ -124,11 +124,11 @@ def preprocessFile():
 
 # Prep
 df = pd.read_csv('PreparedData.csv')
-X = df.iloc[:,[6,8,9,10,12,13,14,16,17,18]].values
-X_30 = df.iloc[:,[6,8,9,10]].values
-X_60 = df.iloc[:,[6,12,13,14]].values
-X_90 = df.iloc[:,[6,16,17,18]].values
-y = df.iloc[:,24].values
+X = df.iloc[:,[5,7,8,9,11,12,13,15,16,17]].values
+X_30 = df.iloc[:,[5,7,8,9]].values
+X_60 = df.iloc[:,[5,11,12,13]].values
+X_90 = df.iloc[:,[5,15,16,17]].values
+y = df.iloc[:,23].values
 
 # Splitting the dataset into the Training set and Test set  (75%  -  25% split)
 from sklearn.model_selection import train_test_split
@@ -136,6 +136,16 @@ X_30_train, X_30_test, y_30_train, y_30_test = train_test_split(X_30, y, test_si
 X_60_train, X_60_test, y_60_train, y_60_test = train_test_split(X_60, y, test_size = 0.25)
 X_90_train, X_90_test, y_90_train, y_90_test = train_test_split(X_90, y, test_size = 0.25)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.25)
+
+# Check the Accuracy of the existing DLS method:
+dls_y_5 = df.iloc[:,24].values
+dls_y_10 = df.iloc[:,25].values
+dls_y_15 = df.iloc[:,26].values
+
+from sklearn.metrics import confusion_matrix
+dls_cm_5 = confusion_matrix(y,dls_y_5)
+dls_cm_10 = confusion_matrix(y,dls_y_10)
+dls_cm_15 = confusion_matrix(y,dls_y_15)
 
 # 10  - cross - validation to check variance
 def cross_validation(classifier, X_training_set, y_training_set, stage, model):
@@ -145,7 +155,19 @@ def cross_validation(classifier, X_training_set, y_training_set, stage, model):
     print("The variance among these is : ",str(accuracies.std()))
     print("--------------------------------------------------------------------------\n")
 
+# Plotting AOC and ROC Curves
 
+def generateROC(Y_True, Y_Scores, titleName):
+    from sklearn import  metrics
+    fpr, tpr, thresholds = metrics.roc_curve(Y_True, Y_Scores)
+    roc_auc = metrics.auc(fpr, tpr)
+    plt.plot([0, 1], [0, 1], 'k--')
+    plt.plot(fpr, tpr, 'g-', color='red', lw=1, label='ROC curve (Area Under Curve = %0.2f)' % roc_auc)
+    plt.legend(loc="lower right")
+    plt.xlabel("FPR")
+    plt.ylabel("TPR")
+    plt.title(titleName)
+    plt.show()
 
 # 1.  Random Forest
 
@@ -177,11 +199,16 @@ def random_forest():
     rf_cm_90 = confusion_matrix(y_90_test, rf_y_90_pred)
     rf_cm = confusion_matrix(y_test, rf_y_pred)
 
+    # Generating ROC Curves with Area 
+    generateROC(y_30_test, rf_y_30_pred, "Random Forest Stage 1")
+    generateROC(y_60_test, rf_y_60_pred, "Random Forest Stage 2")
+    generateROC(y_90_test, rf_y_90_pred, "Random Forest Stage 3")
+    generateROC(y_test, rf_y_pred, "Random Forest All 3 combined")
+
     cross_validation(rf_classifier_30,X_30_train,y_30_train,1, "Random Forest")
     cross_validation(rf_classifier_60, X_60_train, y_60_train, 2, "Random Forest")
     cross_validation(rf_classifier_90, X_90_train, y_90_train, 3, "Random Forest")
     cross_validation(rf_classifier_all, X_train, y_train, 3, "Random Forest")
-
 
 
 
@@ -190,29 +217,31 @@ from sklearn.preprocessing import StandardScaler
 sc_X = StandardScaler()
 X_train = sc_X.fit_transform(X_train)
 X_test = sc_X.transform(X_test)
-#sc_y = StandardScaler()
-#y_train = sc_y.fit_transform(y_train)
+
 
 X_30_train = sc_X.fit_transform(X_30_train)
 X_30_test = sc_X.transform(X_30_test)
-#y_30_train = sc_y.fit_transform(y_30_train)
+
 
 X_60_train = sc_X.fit_transform(X_60_train)
 X_60_test = sc_X.transform(X_60_test)
-#y_60_train = sc_y.fit_transform(y_60_train)
+
 
 X_90_train = sc_X.fit_transform(X_90_train)
 X_90_test = sc_X.transform(X_90_test)
-#y_90_train = sc_y.fit_transform(y_90_train)
+
 
 
 
 
 # 2. Naive Bayes Prediction
-
+    
 
 def naive_Bayes():
     from sklearn.naive_bayes import GaussianNB
+
+    nb_general = GaussianNB()
+    nb_general.fit(X_90_train[:,[2,0]], y_90_train)
 
     nb_classifier_30 = GaussianNB()
     nb_classifier_30.fit(X_30_train, y_30_train)
@@ -239,6 +268,11 @@ def naive_Bayes():
     nb_cm_60 = confusion_matrix(y_60_test, nb_y_60_pred)
     nb_cm_90 = confusion_matrix(y_90_test, nb_y_90_pred)
     nb_cm = confusion_matrix(y_test, nb_y_pred)
+
+    generateROC(y_30_test, nb_y_30_pred, "Naive Bayes Stage 1")
+    generateROC(y_60_test, nb_y_60_pred, "Naive Bayes Stage 2")
+    generateROC(y_90_test, nb_y_90_pred, "Naive Bayes Stage 3")
+    generateROC(y_test, nb_y_pred, "Naive Bayes Stage All 3 Combined")
 
     cross_validation(nb_classifier_30,X_30_train,y_30_train,1, "Naive Bayes")
     cross_validation(nb_classifier_60, X_60_train, y_60_train, 2, "Naive Bayes")
@@ -278,12 +312,21 @@ def svm():
     svc_cm_90 = confusion_matrix(y_90_test, svc_y_90_pred)
     svc_cm = confusion_matrix(y_test, svc_y_pred)
 
+
+    generateROC(y_30_test, svc_y_30_pred, "SVM Stage 1")
+    generateROC(y_60_test, svc_y_60_pred, "SVM Stage 2")
+    generateROC(y_90_test, svc_y_90_pred, "SVM Stage 3")
+    generateROC(y_test, svc_y_pred, "SVM All 3 Combined")
+
     # 10 cross-validation to determine variance
     cross_validation(svc_classifier_30,X_30_train,y_30_train,1, "SVM")
     cross_validation(svc_classifier_60, X_60_train, y_60_train, 2, "SVM")
     cross_validation(svc_classifier_90, X_90_train, y_90_train, 3, "SVM")
     cross_validation(svc_classifier_all, X_train, y_train, 3, "SVM")
 
+
+# Hyperparameter Tunining using Grid Search
+"""
     from sklearn.model_selection import GridSearchCV
     hyperF = [{'C': [1, 2, 3, 5], 'kernel':['rbf'], 'gamma': [0.001,0.0001, 0.005]}]
 
@@ -306,7 +349,7 @@ def svm():
     grid_all.fit(X_train, y_train)
     print("\n The best accuracy is given by: ", str(grid_all.best_score_))
     print("\n The best parameters are: ", grid_all.best_params_)
-
+"""
 
 
 # 4. Logistic Regression
@@ -315,16 +358,16 @@ def svm():
 def logisticRegressionClassifier():
     from sklearn.linear_model import LogisticRegression
 
-    log_classifier_30 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l2')
+    log_classifier_30 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l1', C=0.1)
     log_classifier_30.fit(X_30_train, y_train)
 
-    log_classifier_60 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l2')
+    log_classifier_60 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l1', C=0.1)
     log_classifier_60.fit(X_60_train, y_train)
 
-    log_classifier_90 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l2')
+    log_classifier_90 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l1', C=0.1)
     log_classifier_90.fit(X_90_train, y_train)
 
-    log_classifier_all = LogisticRegression(solver='liblinear', max_iter=100, penalty='l2')
+    log_classifier_all = LogisticRegression(solver='liblinear', max_iter=100, penalty='l1', C=1)
     log_classifier_all.fit(X_train, y_train)
 
     # Predicting the Test set results with Naive Bayes
@@ -340,12 +383,22 @@ def logisticRegressionClassifier():
     log_cm_90 = confusion_matrix(y_90_test, log_y_90_pred)
     log_cm = confusion_matrix(y_test, log_y_pred)
 
+    # Generate ROC Curve
+    generateROC(y_30_test, log_y_30_pred, "Logistic Regression Stage 1")
+    generateROC(y_60_test, log_y_60_pred, "Logistic Regression Stage 2")
+    generateROC(y_90_test, log_y_90_pred, "Logistic Regression Stage 3")
+    generateROC(y_test, log_y_pred, "Logistic Regression All 3 Combined")
+
     # 10 cross-validation to determine variance
     cross_validation(log_classifier_30,X_30_train,y_30_train,1, "Logisic Regression")
     cross_validation(log_classifier_60, X_60_train, y_60_train, 2, "Logisic Regression")
     cross_validation(log_classifier_90, X_90_train, y_90_train, 3, "Logisic Regression")
     cross_validation(log_classifier_all, X_train, y_train, 3, "Logisic Regression")
-"""
+
+
+# Hyperparameter Tuninig using Grid Search
+
+
     from sklearn.model_selection import GridSearchCV
     hyperF = [{'C': [0.1, 0.001, 1, 10], 'solver':['liblinear'], 'penalty': ['l1', 'l2'], 'max_iter':[100, 500, 1000, 2000]}]
 
@@ -368,14 +421,55 @@ def logisticRegressionClassifier():
     grid_all.fit(X_train, y_train)
     print("\n The best accuracy is given by: ", str(grid_all.best_score_))
     print("\n The best parameters are: ", grid_all.best_params_)
-"""
+
+
+# Visualising the Training or Test set results
+def plot3D():
+    plt.close('all')
+    from matplotlib.colors import ListedColormap
+    from mpl_toolkits.mplot3d import Axes3D
+    X_set, y_set = X_60_train, y_60_train
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    for i, j in enumerate(np.unique(y_set)):
+        ax.scatter(X_set[y_set == j, 3], X_set[y_set == j, 2], X_set[y_set == j, 0],
+                    c = ListedColormap(('red', 'yellow'))(i), label = j, s=50)
+    plt.title('Training set')
+    ax.view_init(elev=30, azim= 30)
+    ax.set_xlabel('Wickets')
+    ax.set_ylabel('10 Over score')
+    ax.set_zlabel('Target')
+    plt.legend()
+    plt.show()
+
+def plot2DDecionBoundaryTraining(classifier, X_trainer, y_trainer):                 # Plotting 2 dimesnional boundary. Not intuitive
+
+    # Visualising the Training set results
+    from matplotlib.colors import ListedColormap
+    X_set, y_set = X_trainer, y_trainer
+    X1, X2 = np.meshgrid(np.arange(start = X_set[:, 2].min() - 1, stop = X_set[:, 2].max() + 1, step = 0.01),
+                        np.arange(start = X_set[:, 0].min() - 1, stop = X_set[:, 0].max() + 1, step = 0.01))
+    plt.contourf(X1, X2, classifier.predict(np.array([X1.ravel(), X2.ravel()]).T).reshape(X1.shape),
+                 alpha = 0.75, cmap = ListedColormap(('red', 'green')))
+    plt.xlim(X_set[:,2].min(), X_set[:,2].max())
+    plt.ylim(X_set[:,0].min(), X_set[:,0].max())
+    for i, j in enumerate(np.unique(y_set)):
+        plt.scatter(X_set[y_set == j, 2], X_set[y_set == j, 0],
+                    c = ListedColormap(('red', 'green'))(i), label = j, s=40)
+    plt.title('Decision Boundary Classification (Training set)')
+    plt.xlabel('Score after 10 overs')
+    plt.ylabel('Target')
+    plt.legend()
+    plt.show()
+
 
 def main():
-    #preprocessFile()
-    random_forest()
+    preprocessFile()
+    #random_forest()
     #naive_Bayes()
     #svm()
     #logisticRegressionClassifier()
+    #plot3D()
 
 if __name__ == "__main__":
     main()
