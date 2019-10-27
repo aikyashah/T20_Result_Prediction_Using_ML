@@ -147,6 +147,31 @@ dls_cm_5 = confusion_matrix(y,dls_y_5)
 dls_cm_10 = confusion_matrix(y,dls_y_10)
 dls_cm_15 = confusion_matrix(y,dls_y_15)
 
+scale = 0
+
+# Scaling needed for SVM and Naive Bayes
+def scaleData():
+    if scale==0:
+        from sklearn.preprocessing import StandardScaler
+        sc_X = StandardScaler()
+        global X_train, X_test, X_30_train, X_30_test, X_60_train, X_60_test, X_90_train, X_90_test, scale
+        X_train = sc_X.fit_transform(X_train)
+        X_test = sc_X.transform(X_test)
+
+
+        X_30_train = sc_X.fit_transform(X_30_train)
+        X_30_test = sc_X.transform(X_30_test)
+
+
+        X_60_train = sc_X.fit_transform(X_60_train)
+        X_60_test = sc_X.transform(X_60_test)
+
+
+        X_90_train = sc_X.fit_transform(X_90_train)
+        X_90_test = sc_X.transform(X_90_test)
+
+        scale = 1
+
 # 10  - cross - validation to check variance
 def cross_validation(classifier, X_training_set, y_training_set, stage, model):
     from sklearn.model_selection import cross_val_score
@@ -211,33 +236,13 @@ def random_forest():
     cross_validation(rf_classifier_all, X_train, y_train, 3, "Random Forest")
 
 
-
-# Scaling needed for SVM and Naive Bayes
-from sklearn.preprocessing import StandardScaler
-sc_X = StandardScaler()
-X_train = sc_X.fit_transform(X_train)
-X_test = sc_X.transform(X_test)
-
-
-X_30_train = sc_X.fit_transform(X_30_train)
-X_30_test = sc_X.transform(X_30_test)
-
-
-X_60_train = sc_X.fit_transform(X_60_train)
-X_60_test = sc_X.transform(X_60_test)
-
-
-X_90_train = sc_X.fit_transform(X_90_train)
-X_90_test = sc_X.transform(X_90_test)
-
-
-
-
-
 # 2. Naive Bayes Prediction
     
 
 def naive_Bayes():
+
+    scaleData()                                                         # Scale Data before using
+
     from sklearn.naive_bayes import GaussianNB
 
     nb_general = GaussianNB()
@@ -285,6 +290,9 @@ def naive_Bayes():
 
 
 def svm():
+
+    scaleData()                                                         # Scale Data before using
+
     from sklearn.svm import SVC
 
     svc_classifier_30 = SVC(kernel='linear', C=1)
@@ -356,6 +364,9 @@ def svm():
 
 
 def logisticRegressionClassifier():
+
+    scaleData()                                                            #Scale Data before Using
+
     from sklearn.linear_model import LogisticRegression
 
     log_classifier_30 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l1', C=0.1)
@@ -464,9 +475,9 @@ def plot2DDecionBoundaryTraining(classifier, X_trainer, y_trainer):             
 
 
 def main():
-    preprocessFile()
+    #preprocessFile()
     #random_forest()
-    #naive_Bayes()
+    naive_Bayes()
     #svm()
     #logisticRegressionClassifier()
     #plot3D()
