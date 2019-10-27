@@ -199,6 +199,11 @@ def generateROC(Y_True, Y_Scores, titleName):
 def random_forest():
     # Random Forest
     from sklearn.ensemble import RandomForestClassifier
+
+    #rf_general = RandomForestClassifier(n_estimators=100, criterion='entropy', max_depth=5)                    # For the purpose of visualization only
+    #rf_general.fit(X_90_train[:,[2,0]], y_90_train)
+    #plot2DDecionBoundaryTraining(rf_general,X_90_test,y_90_test,"3 test")
+
     rf_classifier_30 = RandomForestClassifier(n_estimators=500, criterion='entropy', max_depth=5, min_samples_split=15)
     rf_classifier_30.fit(X_30_train,y_30_train)
 
@@ -245,8 +250,8 @@ def naive_Bayes():
 
     from sklearn.naive_bayes import GaussianNB
 
-    nb_general = GaussianNB()
-    nb_general.fit(X_90_train[:,[2,0]], y_90_train)
+    #nb_general = GaussianNB()                                          # For the purpose of visualization only
+    #nb_general.fit(X_90_train[:,[2,0]], y_90_train)
 
     nb_classifier_30 = GaussianNB()
     nb_classifier_30.fit(X_30_train, y_30_train)
@@ -284,6 +289,8 @@ def naive_Bayes():
     cross_validation(nb_classifier_90, X_90_train, y_90_train, 3, "Naive Bayes")
     cross_validation(nb_classifier_all, X_train, y_train, 3, "Naive Bayes")
 
+    #plot2DDecionBoundaryTraining(nb_general,X_90_test,y_90_test,"3")
+
 
 
 # 3. SVM
@@ -294,6 +301,10 @@ def svm():
     scaleData()                                                         # Scale Data before using
 
     from sklearn.svm import SVC
+
+    #svc_general = SVC(kernel='rbf')                                    # For visualizing SVM decion boundary. Not useful for 3 D data
+    #svc_general.fit(X_90_train[:,[2,0]], y_90_train)
+    #plot2DDecionBoundaryTraining(svc_general,X_90_test,y_90_test,"1")
 
     svc_classifier_30 = SVC(kernel='linear', C=1)
     svc_classifier_30.fit(X_30_train, y_30_train)
@@ -368,6 +379,10 @@ def logisticRegressionClassifier():
     scaleData()                                                            #Scale Data before Using
 
     from sklearn.linear_model import LogisticRegression
+
+    #log_geneeral = LogisticRegression(solver='liblinear', max_iter=100, penalty='l1', C=0.1)                    # For the purpose of visualization only
+    #log_geneeral.fit(X_60_train[:, [2,0]], y_60_train)
+    #plot2DDecionBoundaryTraining(log_geneeral, X_60_test, y_30_test, "2 Logistic Regr Test")
 
     log_classifier_30 = LogisticRegression(solver='liblinear', max_iter=100, penalty='l1', C=0.1)
     log_classifier_30.fit(X_30_train, y_train)
@@ -453,7 +468,7 @@ def plot3D():
     plt.legend()
     plt.show()
 
-def plot2DDecionBoundaryTraining(classifier, X_trainer, y_trainer):                 # Plotting 2 dimesnional boundary. Not intuitive
+def plot2DDecionBoundaryTraining(classifier, X_trainer, y_trainer, stg):                 # Plotting 2 dimesnional boundary. Not intuitive
 
     # Visualising the Training set results
     from matplotlib.colors import ListedColormap
@@ -467,8 +482,8 @@ def plot2DDecionBoundaryTraining(classifier, X_trainer, y_trainer):             
     for i, j in enumerate(np.unique(y_set)):
         plt.scatter(X_set[y_set == j, 2], X_set[y_set == j, 0],
                     c = ListedColormap(('red', 'green'))(i), label = j, s=40)
-    plt.title('Decision Boundary Classification (Training set)')
-    plt.xlabel('Score after 10 overs')
+    plt.title('Decision Boundary for Classification for stage' + stg)
+    plt.xlabel('Scaled Score')
     plt.ylabel('Target')
     plt.legend()
     plt.show()
