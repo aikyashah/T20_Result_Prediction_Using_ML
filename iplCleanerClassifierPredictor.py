@@ -12,9 +12,9 @@ import pandas as pd
 def preprocessFile():
     # Importing the dataset
     df1 = pd.read_csv('deliveries.csv')             # The file where we will calculate scores ball by ball
-    df2 = pd.read_csv('workingData.csv')            # This is the file where we will input our calculated values
+    df2 = pd.read_csv('workingData.csv')            # This is the file in the format we want our calculated values in
 
-    abandoned = [301,452, 546,566, 571,11340] # Rain abandoned matches with no result or shortened matches with less tha 11 overs
+    abandoned = [301,452, 546,566, 571,11340]       # Rain abandoned matches with no result or shortened matches with less tha 11 overs
     #Remove abandoned matches from the dataframe
     for a_id in abandoned:
         indexIds1 = df1[df1['match_id'] == a_id].index
@@ -22,7 +22,7 @@ def preprocessFile():
         indexIds2 = df2[df2['id'] == a_id].index
         df2.drop(indexIds2, inplace = True)
 
-    #Fill wickets column with 0 to replace Nan if now wickets fell on that ball
+    #Fill wickets column with 0 to replace Nan if no player was dismissed on that ball
     df1['player_dismissed'] = df1['player_dismissed'].fillna(0)
 
     prev_innings  = 1
@@ -34,7 +34,7 @@ def preprocessFile():
     for row in df1.itertuples():
         curr_matchid = row.match_id
         curr_innings = row.inning
-        if curr_innings > 2:                                                    # Check for superover condition, and ignore
+        if curr_innings > 2:                                                    # Check for superover condition, if yes then skip calculation and go to next row
             continue
         # This condition checks whether we have moved on to the next match in the entries.
         # If so, input our calculated scores at appropraite points in the dataframe2
@@ -120,14 +120,12 @@ def preprocessFile():
 
 # Start of Using Models
 
-#preprocessFile()               # Uncomment to process the file again
-
 # Prep
 df = pd.read_csv('PreparedData.csv')
 X = df.iloc[:,[5,7,8,9,11,12,13,15,16,17]].values
-X_30 = df.iloc[:,[5,7,8,9]].values
-X_60 = df.iloc[:,[5,11,12,13]].values
-X_90 = df.iloc[:,[5,15,16,17]].values
+X_30 = df.iloc[:,[5,7,8,9]].values                          # Stage 1:   Columns: target, balls, team2_30 runs, wickets after 30 balls
+X_60 = df.iloc[:,[5,11,12,13]].values                       # Stage 2:   Columns: target, balls, team2_60 runs, wickets after 60 balls
+X_90 = df.iloc[:,[5,15,16,17]].values                       # Stage 3:   Columns: target, balls, team2_90 runs, wickets after 90 balls
 y = df.iloc[:,23].values
 
 # Splitting the dataset into the Training set and Test set  (75%  -  25% split)
@@ -147,7 +145,7 @@ dls_cm_5 = confusion_matrix(y,dls_y_5)
 dls_cm_10 = confusion_matrix(y,dls_y_10)
 dls_cm_15 = confusion_matrix(y,dls_y_15)
 
-scale = 0
+scale = 0                                                    # Global variable to be set if scaling is completed
 
 # Scaling needed for SVM and Naive Bayes
 def scaleData():
@@ -180,8 +178,8 @@ def cross_validation(classifier, X_training_set, y_training_set, stage, model):
     print("The variance among these is : ",str(accuracies.std()))
     print("--------------------------------------------------------------------------\n")
 
+    
 # Plotting AOC and ROC Curves
-
 def generateROC(Y_True, Y_Scores, titleName):
     from sklearn import  metrics
     fpr, tpr, thresholds = metrics.roc_curve(Y_True, Y_Scores)
@@ -278,7 +276,8 @@ def naive_Bayes():
     nb_cm_60 = confusion_matrix(y_60_test, nb_y_60_pred)
     nb_cm_90 = confusion_matrix(y_90_test, nb_y_90_pred)
     nb_cm = confusion_matrix(y_test, nb_y_pred)
-
+    
+    # Generate ROC curves
     generateROC(y_30_test, nb_y_30_pred, "Naive Bayes Stage 1")
     generateROC(y_60_test, nb_y_60_pred, "Naive Bayes Stage 2")
     generateROC(y_90_test, nb_y_90_pred, "Naive Bayes Stage 3")
@@ -423,7 +422,7 @@ def logisticRegressionClassifier():
 
 
 # Hyperparameter Tuninig using Grid Search
-
+"""
 
     from sklearn.model_selection import GridSearchCV
     hyperF = [{'C': [0.1, 0.001, 1, 10], 'solver':['liblinear'], 'penalty': ['l1', 'l2'], 'max_iter':[100, 500, 1000, 2000]}]
@@ -447,14 +446,14 @@ def logisticRegressionClassifier():
     grid_all.fit(X_train, y_train)
     print("\n The best accuracy is given by: ", str(grid_all.best_score_))
     print("\n The best parameters are: ", grid_all.best_params_)
-
+"""
 
 # Visualising the Training or Test set results
 def plot3D():
     plt.close('all')
     from matplotlib.colors import ListedColormap
     from mpl_toolkits.mplot3d import Axes3D
-    X_set, y_set = X_60_train, y_60_train
+    X_set, y_set = X_60_train, y_60_train                       # Change these values to visualize different Data
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     for i, j in enumerate(np.unique(y_set)):
@@ -490,12 +489,12 @@ def plot2DDecionBoundaryTraining(classifier, X_trainer, y_trainer, stg):        
 
 
 def main():
-    #preprocessFile()
-    #random_forest()
+    preprocessFile()
+    random_forest()
     naive_Bayes()
-    #svm()
-    #logisticRegressionClassifier()
-    #plot3D()
+    svm()
+    logisticRegressionClassifier()
+    plot3D()
 
 if __name__ == "__main__":
     main()
