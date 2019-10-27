@@ -13,7 +13,8 @@ This is my first independent project aimed at learning different Machine Learnin
 1. Assumptions and Cleaning
 1. Methodology and Models
 1. Model Tuning and Tuning Results
-1. Comparision of Models
+1. Comparision of Models and DLS Method
 1. ROC Plots
 1. An Attempt at Interpretaion with Data and Boundary plots
+1. Conclusion
 1. Future Ideas and expansion
