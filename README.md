@@ -45,7 +45,7 @@ This is my first independent project aimed at learning different Machine Learnin
   * Any player **can bat only once**. Hence having less outs is an important resouce. More players a team has still to play, the more risk it can take and hence accelerate the runs scoring.
 
   
-  <h3>4. Assumptions and Cleaning:
+  <h3>4. Assumptions and Cleaning:</h3>
     I have made the following adjustments:
   * For training ML models, I have considered only those matches that have been completed without rain interruption.
   * My model predicts results, given that Team 1 has completed it's innings.
