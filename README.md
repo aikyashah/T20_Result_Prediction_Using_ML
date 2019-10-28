@@ -19,13 +19,13 @@ This is my first independent project aimed at learning different Machine Learnin
 1. Conclusion
 1. Future ideas and expansion
 
-  1. ###Statement </h3>
+  <h3>1. Statement</h3>
   I aim to employ Machine Learning models to predict the result of T20 cricket matches and find out if applying them during     rain interruptions is statistically feasible, and if so, how does it compare to the DLS method, which is the officialy used method currently.
 
-  2. <h3>Motivation</h3>
+  <h3>2. Motivation</h3>
   Cricket matches often encounter rain or poor lighting conditions and unfortuately have to stop the play. In this case, the DLS method, which is a statistical formula loosely based on Machine Learning is employed to determine the winner. I wanted to check how accurate DLS method is. I also was curious to check if traditional Machine Learning algorithms, that have so far been used on player level statistics and team level staistics, if employed on match results, can predict the outcomes better than DLS method.
   
-  3. <h3> Basic Rules of Cricket</h3>
+  <h3>3. Basic Rules of Cricket</h3>
   For those who are not familiar with the rules of cricket, I shall try to explain the rules of play with some Baseball analogy and comparisons. For others, skip to section 4.
     
   * Glossary:
@@ -45,14 +45,29 @@ This is my first independent project aimed at learning different Machine Learnin
   * Any player **can bat only once**. Hence having less outs is an important resouce. More players a team has still to play, the more risk it can take and hence accelerate the runs scoring.
 
   
-  4. ### Assumptions and Cleaning:
-  I have made the following adjustments:
+  <h3>4. Assumptions and Cleaning:
+    I have made the following adjustments:
   * For training ML models, I have considered only those matches that have been completed without rain interruption.
   * My model predicts results, given that Team 1 has completed it's innings.
-  * The game can stop at any stage of the Team 2's innings depending on when it rains: After over 5 or over 6 or over 7 and so on ... till over 20.
+  * The game can stop at any stage of the Team 2's innings depending on when it rains: After over 5 or over 6 or over 7 and so on ... till over 20. Predicting at each such stage requires at least 15 classifiers for each model. Since this is an introductory project, I have chosen only 3 stages.
   * I have considered 3 stages of stoppage for predictions: 
     * **Stage 1: When 5 overs are complete** (i.e. 25% of the innings of Team 2 is complete)
-    * **Stage 1: When 10 overs are complete** (i.e. 50% of the innings of Team 2 is complete)
-    * **Stage 3: When 15 overs are complete** (i.e. 75% of the innings of Team 2 is complete
+    * **Stage 2: When 10 overs are complete** (i.e. 50% of the innings of Team 2 is complete)
+    * **Stage 3: When 15 overs are complete** (i.e. 75% of the innings of Team 2 is complete)
+  * If Team 2 wins after super overs, it is still consider a win.
+  
+  <h5>Data Cleaning: </h5>
+  File Used: Deliveries.csv, WorkingData.csv
+  lines: 179970
+  
+  Deliveries.csv contains data of ball by ball play of 738 Indian Premier League 20 cricket matches. It does not contain the total score at the end of innings or wickets. WorkingData.csv contains corrosponding match ids and winner data.
+  
+  I filtered all data of those match Ids that were incomplete or decided by DLS method. It is counter intuitive to compare with DLS method if the training data resluts are decided by the DLS method itself! I filtered data of incomplete matches.
+  
+  Then I looped through the entire file. If it was first innings, I summed the total runs on each ball and input the final target at the end of 20 oversor 10 wickets, whichever happened first.
+  If it was the second innings, I calculated score and wickets after 5 overs, 10 overs and 15 overs.
+  
+  Finally I input the entire dataframe to a csv file named PreparedData.csv
+  
   
   
