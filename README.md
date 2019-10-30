@@ -74,13 +74,12 @@ This is my first independent project aimed at learning different Machine Learnin
   
   
   <h3> 5. Methodology and Models</h3>
-  
-  For this project I used 3 classifiers for each of the following Machine Learning classification models: Random Forest, SVM, Logistic Regressiona nd Naive Bayes. I have considered the following 3 features in the training sets:
-      * The target score for Team 2 to achieve
-      * The number of balls remaining in the innings ( which remains fixed for Stage 1 (i.e. 90), 2 (ie 60) and 3 (ie.e 30)
-      * The runs scored at this stage
+  For this project I used 3 classifiers for each of the following Machine Learning classification models: Random Forest, SVM, Logistic Regressiona and Naive Bayes. I have considered the following 3 features in the training sets:
+    * The target score for Team 2 to achieve
+    * The number of balls remaining in the innings ( which remains fixed for Stage 1 (i.e. 90), 2 (ie 60) and 3 (ie.e 30)
+    * The runs scored at this stage
       
   <h3>6. Model Tuning and Tuning Results:</h3>
-  
+  I 
   
   
