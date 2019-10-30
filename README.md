@@ -46,15 +46,18 @@ This is my first independent project aimed at learning different Machine Learnin
 
   
   <h3>4. Assumptions and Cleaning:</h3>
-    I have made the following adjustments:
+  I have made the following adjustments:
+  
   * For training ML models, I have considered only those matches that have been completed without rain interruption.
   * My model predicts results, given that Team 1 has completed it's innings.
   * The game can stop at any stage of the Team 2's innings depending on when it rains: After over 5 or over 6 or over 7 and so on ... till over 20. Predicting at each such stage requires at least 15 classifiers for each model. Since this is an introductory project, I have chosen only 3 stages.
-  * I have considered 3 stages of stoppage for predictions: 
-    * **Stage 1: When 5 overs are complete** (i.e. 25% of the innings of Team 2 is complete)
-    * **Stage 2: When 10 overs are complete** (i.e. 50% of the innings of Team 2 is complete)
-    * **Stage 3: When 15 overs are complete** (i.e. 75% of the innings of Team 2 is complete)
-  * If Team 2 wins after super overs, it is still consider a win.
+  * I have considered 3 stages of stoppage for predictions:
+    * Stage 1: When 5 overs are complete (i.e. 25% of the innings of Team 2 is complete)
+    * Stage 2: When 10 overs are complete (i.e. 50% of the innings of Team 2 is complete)
+    * Stage 3: When 15 overs are complete (i.e. 75% of the innings of Team 2 is complete)
+  * If Team 2 wins after super over, it is still considered a win.
+
+  <p> The purpose of the training being so selective is that I want to predict how he game would have developed normally without an exceptional performance. My model does not consider the strength of the oppostion bowlers or the skills of the batsmen still to come or the playing conditions.</p>
   
   <h5>Data Cleaning: </h5>
   File Used: Deliveries.csv, WorkingData.csv
@@ -68,6 +71,16 @@ This is my first independent project aimed at learning different Machine Learnin
   If it was the second innings, I calculated score and wickets after 5 overs, 10 overs and 15 overs.
   
   Finally I input the entire dataframe to a csv file named PreparedData.csv
+  
+  
+  <h3> 5. Methodology and Models</h3>
+  
+  For this project I used 3 classifiers for each of the following Machine Learning classification models: Random Forest, SVM, Logistic Regressiona nd Naive Bayes. I have considered the following 3 features in the training sets:
+      * The target score for Team 2 to achieve
+      * The number of balls remaining in the innings ( which remains fixed for Stage 1 (i.e. 90), 2 (ie 60) and 3 (ie.e 30)
+      * The runs scored at this stage
+      
+  <h3>6. Model Tuning and Tuning Results:</h3>
   
   
   
