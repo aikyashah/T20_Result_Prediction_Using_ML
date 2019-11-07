@@ -75,11 +75,49 @@ This is my first independent project aimed at learning different Machine Learnin
   
   <h3> 5. Methodology and Models</h3>
   For this project I used 3 classifiers for each of the following Machine Learning classification models: Random Forest, SVM, Logistic Regressiona and Naive Bayes. I have considered the following 3 features in the training sets:
-    * The target score for Team 2 to achieve
-    * The number of balls remaining in the innings ( which remains fixed for Stage 1 (i.e. 90), 2 (ie 60) and 3 (ie.e 30)
-    * The runs scored at this stage
+  
+   * The target score for Team 2 to achieve
+   * The number of balls remaining in the innings ( which remains fixed for Stage 1 (i.e. 90), 2 (ie 60) and 3 (ie.e 30)
+   * The runs scored at this stage
       
   <h3>6. Model Tuning and Tuning Results:</h3>
-  I 
+  I used grid search method to obtain the best accuracies for eeach of the 4 Machine Learning models. What I observed with respect to SVM was that the kernel function 'linear' gave better results than 'rbf' for stage 1 and stage 2, however, there was not so much of a significant difference between the two kernels. Both gave similar average accuracies. Logistic Regression performed better in training but worse in test. Grid search results did not converge. The accuracies were wildly different in each run. The code for the grid search has been commented out.
+  
+  <h3> 7. Comparisons of Models and DLS Method:</h3>
+  The accuracy of the existing non-ML based system used to predict the winner (ie. the DLS method) was calculated over the entire dataset. This is taken as base reference. The ML models' accuracy is over only 183 records and the DLS is for 731 records.
+    <h4> Accuracy at Stage 1:</h4>
+    ![Stage1 Accuracy](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/Accuracy%20Charts/Accuracy%20stg1.png)
+    <h4> Accuracy at Stage 2:</h4>
+    ![Stage2 Accuracy](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/Accuracy%20Charts/Accuracy%20stg2.png)
+    <h4> Accuracy at Stage 3: <h4>
+  ![Stage3 Accuracy](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/Accuracy%20Charts/Accuracy%20stg3.png)
+  
+  For stage 3, I compared the accuracies of a model considering only Stage 3 vs the accuracy of that same model considering the previous two stages as well - meaning the feature in the combined stage model will have 12 dimensions as opposed to 4 dimensions in the 'only stage 3' model.
+    <h4> Accuracy comparison for Stage 3 Alone vs Stage 3 considering Stage2 and Stage 1:</h4>
+    ![Stage3 Accuracy Comparison](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/Accuracy%20Charts/Accuracy%20stg%20comb.png)
+    
+  <h3>8. ROC Plots:</h3>
+  ROC plots indicate the true positive rate of the ML model. The following ROC plots were obtained for stage 1. For more ROC plots look at the directory 'ROC Plots':
+  **Stage 1**
+    <h4>Random Forest</h4>
+    ![Stage 1 ROC RF](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/ROC_Plots/Random%20Forest%20ROC%20Stage%201.png) 
+     <h4>Naive Bayes</h4>
+     ![Stage 1 ROC NB](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/ROC_Plots/Naive%20Bayes%20ROC%20Stage%201.png)
+     <h4>SVM</h4>
+     ![Stage 1 ROC NB](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/ROC_Plots/SVM%20ROC%20Stage%201.png) 
+     <h4>Logistic Regression</h4>
+     ![Stage 1 ROC LR](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/ROC_Plots/Logistic%20Regression%20ROC%20Stage%201.png)
+     
+  <h3>9. An Attempt at Interpretation with Data and Boundary Plots:</h3>
+  
+  The intuition behind using these 4 models was the small dimension of the data and the length of the data. As opposed to images and words Neural Networks do not usually work well with simple categorical and spreadsheet type data. Let us look at the 3-D data plots:
+  [!Stage1 data]
+ (https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/Data%20Plots/3D%20Training%20Data%20Stage%201.png)
+  
+  [!Stage 2 data](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/Data%20Plots/3D%20Training%20Data%20Stage%202.png)
+  
+  [!Stage 3 data](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/Data%20Plots/3D%20Training%20Data%20Stage%203.png)
+    
+
   
   
