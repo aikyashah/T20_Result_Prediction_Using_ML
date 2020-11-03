@@ -117,6 +117,23 @@ This is my first independent project aimed at learning different Machine Learnin
   [!Stage 2 data](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/Data%20Plots/3D%20Training%20Data%20Stage%202.png)
   
   [!Stage 3 data](https://github.com/aikyashah/T20_Result_Prediction_Using_ML/blob/master/Data%20Plots/3D%20Training%20Data%20Stage%203.png)
+
+
+  <h3>10. Conclusion:</h3>
+  
+  As we can see, the statistical method holds strong against the ML models at all the three selected stages.
+  
+   * Stage 1 with 5 overs completed has low accuracy and hence it is too early to determine winner either by DLS or by ML models.
+   * There exists at least 1 ML model that outperforms DLS method at each stage, but no model does it consistently across stages and by a clear margin.
+   * More data points and different data organization is needed for better performance.
+
+  <h3>11. Future ideas and expansion:</h3>
+
+  To further my idea, I recommend:
+  
+  * Gather more data points. Probably a set for 50 over cricket.
+  * Randomize balls out of 120 and avoid stages altogether. Calculate scores at random intervals
+
     
 
   
